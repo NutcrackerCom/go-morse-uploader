@@ -50,6 +50,12 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = os.MkdirAll("uploads", 0755)
+	if err != nil {
+		http.Error(w, "error creating uploads dir", http.StatusInternalServerError)
+		return
+	}
+
 	root, err := os.OpenRoot("uploads")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -72,4 +78,10 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	if _, err = w.Write([]byte(convertedData)); err != nil {
+		http.Error(w, "error in writing response", http.StatusInternalServerError)
+		return
+	}
 }
